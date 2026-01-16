@@ -91,3 +91,46 @@ INSERT INTO users (id, name, age, active) VALUES (5, 'Eve', 22, true);
 SELECT * FROM users WHERE email IS NULL;
 
 SELECT * FROM users WHERE email IS NOT NULL;
+
+-- ============================================================
+-- Test 11: Index lookups on PRIMARY KEY
+-- ============================================================
+-- These queries use the auto-created index on primary key 'id'
+SELECT * FROM users WHERE id = 1;
+SELECT * FROM users WHERE id = 3;
+SELECT * FROM users WHERE id = 999;  -- Should return empty
+
+-- ============================================================
+-- Test 12: Index lookups on UNIQUE column
+-- ============================================================
+-- These queries use the auto-created index on unique column 'email'
+SELECT * FROM users WHERE email = 'alice@example.com';
+SELECT * FROM users WHERE email = 'charlie@example.com';
+SELECT * FROM users WHERE email = 'nonexistent@example.com';  -- Should return empty
+
+-- ============================================================
+-- Test 13: Index updates after INSERT
+-- ============================================================
+INSERT INTO users (id, name, email, age, active) VALUES (6, 'Frank', 'frank@example.com', 40, true);
+SELECT * FROM users WHERE id = 6;
+SELECT * FROM users WHERE email = 'frank@example.com';
+
+-- ============================================================
+-- Test 14: Index updates after UPDATE
+-- ============================================================
+UPDATE users SET email = 'updated_frank@example.com' WHERE id = 6;
+SELECT * FROM users WHERE email = 'frank@example.com';  -- Should return empty (old email)
+SELECT * FROM users WHERE email = 'updated_frank@example.com';  -- Should return Frank
+
+-- ============================================================
+-- Test 15: Index updates after DELETE
+-- ============================================================
+DELETE FROM users WHERE id = 6;
+SELECT * FROM users WHERE id = 6;  -- Should return empty
+SELECT * FROM users WHERE email = 'updated_frank@example.com';  -- Should return empty
+
+-- ============================================================
+-- Test 16: Multiple index lookups in JOIN
+-- ============================================================
+-- This tests that indexed lookups work correctly in JOIN operations
+SELECT u.name, o.product FROM users u INNER JOIN orders o ON u.id = o.user_id WHERE u.id = 2;
