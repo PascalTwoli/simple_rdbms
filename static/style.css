@@ -11,9 +11,9 @@
     --text-secondary: #a0a0b0;
     --text-muted: #6b6b7b;
     
-    --accent-primary: #6366f1;
-    --accent-hover: #818cf8;
-    --accent-glow: rgba(99, 102, 241, 0.3);
+    --accent-primary: #eab308;
+    --accent-hover: #facc15;
+    --accent-glow: rgba(234, 179, 8, 0.3);
     
     --priority-high: #ef4444;
     --priority-medium: #f59e0b;
@@ -159,7 +159,7 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--accent-primary), #4f46e5);
+    background: linear-gradient(135deg, var(--accent-primary), #ca8a04);
     color: white;
 }
 
