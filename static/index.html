@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager | RDBMS Demo</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="header-content">
+                <h1>📋 Task Manager</h1>
+                <p class="subtitle">Powered by Custom RDBMS with B-tree Indexing</p>
+            </div>
+        </header>
+
+        <main class="main">
+            <!-- Add Task Form -->
+            <section class="add-task-section">
+                <form id="task-form" class="task-form">
+                    <div class="form-row">
+                        <input 
+                            type="text" 
+                            id="task-title" 
+                            placeholder="What needs to be done?" 
+                            required 
+                            autocomplete="off"
+                        >
+                        <select id="task-priority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">
+                            <span>Add Task</span>
+                        </button>
+                    </div>
+                    <textarea 
+                        id="task-description" 
+                        placeholder="Add description (optional)"
+                        rows="2"
+                    ></textarea>
+                </form>
+            </section>
+
+            <!-- Task List -->
+            <section class="tasks-section">
+                <div class="tasks-header">
+                    <h2>Tasks</h2>
+                    <span id="task-count" class="task-count">0 tasks</span>
+                </div>
+                <div id="task-list" class="task-list">
+                    <!-- Tasks will be rendered here -->
+                </div>
+                <div id="empty-state" class="empty-state">
+                    <span class="empty-icon">✨</span>
+                    <p>No tasks yet. Add one above!</p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>CRUD Demo: Create, Read, Update, Delete operations via REST API</p>
+        </footer>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Task</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="edit-form">
+                <input type="hidden" id="edit-id">
+                <div class="form-group">
+                    <label for="edit-title">Title</label>
+                    <input type="text" id="edit-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-description">Description</label>
+                    <textarea id="edit-description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-priority">Priority</label>
+                    <select id="edit-priority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
