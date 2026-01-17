@@ -1,0 +1,69 @@
+{
+  "tables": {
+    "tasks": {
+      "schema": {
+        "name": "tasks",
+        "columns": [
+          {
+            "name": "id",
+            "data_type": 1,
+            "primary_key": true,
+            "unique": true,
+            "not_null": true
+          },
+          {
+            "name": "title",
+            "data_type": 2,
+            "primary_key": false,
+            "unique": false,
+            "not_null": true
+          },
+          {
+            "name": "description",
+            "data_type": 2,
+            "primary_key": false,
+            "unique": false,
+            "not_null": false
+          },
+          {
+            "name": "priority",
+            "data_type": 2,
+            "primary_key": false,
+            "unique": false,
+            "not_null": false
+          },
+          {
+            "name": "completed",
+            "data_type": 4,
+            "primary_key": false,
+            "unique": false,
+            "not_null": false
+          }
+        ]
+      },
+      "rows": [
+        {
+          "row_id": 1,
+          "data": {
+            "id": 1,
+            "title": "go to gym",
+            "description": "a 30-minutes exercise",
+            "priority": "medium",
+            "completed": false
+          }
+        },
+        {
+          "row_id": 2,
+          "data": {
+            "id": 2,
+            "title": "visit a friend in german",
+            "description": "before the year ends",
+            "priority": "medium",
+            "completed": false
+          }
+        }
+      ],
+      "next_row_id": 3
+    }
+  }
+}

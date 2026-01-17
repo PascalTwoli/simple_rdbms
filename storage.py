@@ -322,3 +322,107 @@ class Database:
         """Remove all tables from the database."""
         self.catalog.clear()
         self._tables.clear()
+    
+    def save_to_file(self, filepath: str) -> None:
+        """
+        Save the entire database to a JSON file.
+        
+        Args:
+            filepath: Path to save the database to
+        """
+        import json
+        
+        data = {
+            'tables': {}
+        }
+        
+        for table_name, table in self._tables.items():
+            # Serialize schema
+            schema_data = {
+                'name': table.schema.name,
+                'columns': [
+                    {
+                        'name': col.name,
+                        'data_type': col.data_type.value,
+                        'primary_key': col.primary_key,
+                        'unique': col.unique,
+                        'not_null': col.not_null,
+                    }
+                    for col in table.schema.columns
+                ]
+            }
+            
+            # Serialize rows
+            rows_data = []
+            for row in table.scan():
+                rows_data.append({
+                    'row_id': row.row_id,
+                    'data': row.data
+                })
+            
+            data['tables'][table_name] = {
+                'schema': schema_data,
+                'rows': rows_data,
+                'next_row_id': table._next_row_id
+            }
+        
+        with open(filepath, 'w') as f:
+            json.dump(data, f, indent=2, default=str)
+    
+    def load_from_file(self, filepath: str) -> None:
+        """
+        Load the database from a JSON file.
+        
+        Args:
+            filepath: Path to load the database from
+        """
+        import json
+        import os
+        
+        if not os.path.exists(filepath):
+            return  # No file to load
+        
+        with open(filepath, 'r') as f:
+            data = json.load(f)
+        
+        # Clear existing data
+        self.clear()
+        
+        for table_name, table_data in data.get('tables', {}).items():
+            # Reconstruct schema
+            schema_info = table_data['schema']
+            columns = []
+            for col_info in schema_info['columns']:
+                columns.append(Column(
+                    name=col_info['name'],
+                    data_type=DataType(col_info['data_type']),
+                    primary_key=col_info.get('primary_key', False),
+                    unique=col_info.get('unique', False),
+                    not_null=col_info.get('not_null', False),
+                ))
+            
+            schema = TableSchema(name=schema_info['name'], columns=columns)
+            table = self.create_table(schema)
+            
+            # Restore rows
+            for row_data in table_data.get('rows', []):
+                # Insert directly to avoid constraint re-checking
+                row = Row(row_id=row_data['row_id'], data=row_data['data'])
+                table._rows[row.row_id] = row
+                
+                # Update unique tracking
+                for col in schema.columns:
+                    if col.unique:
+                        col_name = col.name.lower()
+                        value = row.data.get(col_name)
+                        if value is not None:
+                            table._unique_values[col_name].add(value)
+                
+                # Update indexes
+                for col_name, value in row.data.items():
+                    if value is not None:
+                        table._index_manager.insert(col_name, value, row.row_id)
+            
+            # Restore next_row_id
+            table._next_row_id = table_data.get('next_row_id', 1)
+

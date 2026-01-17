@@ -17,11 +17,18 @@ from exceptions import RDBMSError
 
 app = Flask(__name__, static_folder='static')
 
+# Database file path for persistence
+DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database.json')
+
 # Initialize database and create tasks table
 db = Database()
 
 def init_database():
-    """Initialize the database with the tasks table."""
+    """Initialize the database - load from file or create fresh."""
+    # Try to load existing data
+    db.load_from_file(DB_FILE)
+    
+    # Create tasks table if it doesn't exist
     if not db.has_table('tasks'):
         schema = TableSchema(
             name='tasks',
@@ -34,11 +41,21 @@ def init_database():
             ]
         )
         db.create_table(schema)
+        save_database()
+
+def save_database():
+    """Save database to file."""
+    db.save_to_file(DB_FILE)
 
 init_database()
 
-# Track next ID for auto-increment
+# Track next ID for auto-increment (restore from existing data)
 _next_id = 1
+if db.has_table('tasks'):
+    table = db.get_table('tasks')
+    for row in table.scan():
+        if row['id'] >= _next_id:
+            _next_id = row['id'] + 1
 
 def get_next_id():
     global _next_id
@@ -100,6 +117,8 @@ def create_task():
             'completed': False
         })
         
+        save_database()  # Persist to file
+        
         return jsonify({
             'id': row['id'],
             'title': row['title'],
@@ -159,6 +178,8 @@ def update_task(task_id):
     
     try:
         updated_row = table.update(row.row_id, updates)
+        save_database()  # Persist to file
+        
         return jsonify({
             'id': updated_row['id'],
             'title': updated_row['title'],
@@ -181,6 +202,7 @@ def delete_task(task_id):
     
     row = rows[0]
     table.delete(row.row_id)
+    save_database()  # Persist to file
     
     return jsonify({'message': 'Task deleted'}), 200
 
@@ -192,6 +214,7 @@ def delete_task(task_id):
 if __name__ == '__main__':
     print("🚀 Task Manager Demo")
     print("   Using custom RDBMS with B-tree indexing")
+    print(f"   Data persisted to: {DB_FILE}")
     print("   Open http://localhost:5050 in your browser")
     print("-" * 45)
     app.run(debug=True, port=5050)
